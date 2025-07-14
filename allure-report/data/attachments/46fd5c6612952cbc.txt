@@ -1,0 +1,3 @@
+🚀 Launching browser and logging in...
+Login successful.
+🔍 Attempt 1: Current URL is https://rbf-cargocare.wavestesting.com/
