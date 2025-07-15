@@ -10,27 +10,27 @@ module.exports = {
   reporter: [['list'], ['allure-playwright']],
 
   projects: [
-    // {
-    //   name: 'chromium',
-    //   use: {
-    //     baseURL: getBaseURL(),
-    //     browserName: 'chromium',
-    //     headless: true,
-    //     trace: 'on',
-    //     screenshot: 'only-on-failure',
-    //     video: 'retain-on-failure',
-    //    },
     {
+      name: 'chromium',
+      use: {
+        baseURL: getBaseURL(),
+        browserName: 'chromium',
+        headless: true,
+        trace: 'on',
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure',
+       },
+    
       
-  name: 'firefox',
-  use: {
-    baseURL: getBaseURL(),
-    browserName: 'firefox',
-    headless: true,
-    trace: 'on',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
-  },
+  // name: 'firefox',
+  // use: {
+  //   baseURL: getBaseURL(),
+  //   browserName: 'firefox',
+  //   headless: true,
+  //   trace: 'on',
+  //   screenshot: 'only-on-failure',
+  //   video: 'retain-on-failure',
+  // },
 
   // name: 'Edge',
   // use: {

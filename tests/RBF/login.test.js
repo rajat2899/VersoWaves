@@ -15,7 +15,7 @@ let quotationPage;
 test.beforeAll(async () => {
   try {
     console.log('🚀 Launching browser and logging in...');
-    browser = await firefox.launch({ headless: false });
+    browser = await chromium.launch({ headless: false });
     context = await browser.newContext();
     page = await context.newPage();
 
@@ -30,7 +30,7 @@ test.beforeAll(async () => {
     let maxAttempts = 2;
 
     for (let i = 0; i < maxAttempts; i++) {
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle'); 
       const currentURL = page.url();
       console.log(`🔍 Attempt ${i + 1}: Current URL is ${currentURL}`);
       if (currentURL === expectedURL) {
@@ -40,7 +40,7 @@ test.beforeAll(async () => {
         console.warn(`⚠️ Unexpected URL (${currentURL}). Navigating back...`);
         await page.goBack();
       }
-    }
+    } 
 
     expect(success).toBeTruthy();
     await expect(page).toHaveURL(expectedURL);

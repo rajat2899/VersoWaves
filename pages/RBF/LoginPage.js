@@ -21,8 +21,6 @@ class LoginPage extends BasePage {
 
     await this.page.waitForURL("https://rbf-cargocare.wavestesting.com/", { timeout: 20000 });
 
-
-
     console.log("Login successful.");        
   }
 
