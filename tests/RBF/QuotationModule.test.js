@@ -10,6 +10,7 @@ let page;
 let loginPage;
 let quotationPage;
 let emailPage;
+let selectedCompany = undefined; // <-- Add this line
 
 
 // Shared setup for all describes
@@ -83,9 +84,11 @@ test.describe('📋 Quotation V2 Flow', () => {
     await expect(page).toHaveURL("https://rbf-cargocare.wavestesting.com/quotations-v2/add.html");
   });
 
+  // In the Quotation V2 Flow, after step1_fillCompanyAndDetails, store the company name
   test.describe('Step 1: Fill Company and Details', () => {
     test('4. Quotation V2 Step 1', async () => {
       await quotationPage.step1_fillCompanyAndDetails();
+      selectedCompany = quotationPage.selectedCompanyName ? quotationPage.selectedCompanyName.trim() : undefined;
     });
   });
 
@@ -145,6 +148,6 @@ test.describe('📋 Quotation Email Verification', () => {
   })
 
   test('7. Verify Company name on Quotation email', async() => {
-    await emailPage.verifyingCompanyNameOnEmail();
+    await emailPage.verifyingCompanyNameOnEmail(selectedCompany);
   })
 });
