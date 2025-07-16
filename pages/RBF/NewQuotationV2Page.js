@@ -36,6 +36,9 @@ class New_Quotation_V2 extends BasePage {
     await companyOption.waitFor({ state: 'visible', timeout: 10000 });
     await companyOption.click();
 
+    // Store the selected company name for later use
+    this.selectedCompanyName = await companyOption.textContent();
+
     console.log("📄 Selecting company email from dropdown...");
     const selectCompanyContact = this.page.locator("(//div[@class='selectbutton'])[last()-4]");
     await selectCompanyContact.waitFor({ state: 'visible', timeout: 10000 });
