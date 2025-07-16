@@ -283,7 +283,7 @@ class New_Quotation_V2 extends BasePage {
       await nextStepBtn.click(); 
 
     } catch (error) {
-      console.error("❌ Error in Step 3:", error);
+      console.error("❌ Error inn Step 3:", error);
       await this.page.screenshot({ path: 'error_step3.png', fullPage: true }).catch(() => {});
       throw error;
     }
