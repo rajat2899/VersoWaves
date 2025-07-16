@@ -91,9 +91,9 @@ test.describe('📋 Quotation V2 Flow', () => {
     });
   });
 
-  test.describe('Step 3: Verify Tariff and Add Lines', () => {
+  test.describe('Step 3: Verify Tariff and Add Lines', () => { 
     test('6. Quotation V2 Step 3', async () => {
-      await quotationPage.step3_verifyTariffAndAddLines();
+      await quotationPage.step3_verifyTariffAndAddLines();  
     });
   });
 
