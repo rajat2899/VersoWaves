@@ -1,6 +1,7 @@
 import { test, expect, chromium, firefox, webkit } from '@playwright/test';
 import LoginPage from '../../pages/RBF/LoginPage';
 import New_Quotation_V2 from '../../pages/RBF/NewQuotationV2Page';
+import Email_Page from '../../pages/RBF/EmailPage';
 
 // Global variables for browser and pages
 let browser;
@@ -8,6 +9,8 @@ let context;
 let page;
 let loginPage;
 let quotationPage;
+let emailPage;
+
 
 // Shared setup for all describes
 // ------------------------------
@@ -20,6 +23,7 @@ test.beforeAll(async () => {
 
     loginPage = new LoginPage(page);
     quotationPage = new New_Quotation_V2(page);
+    emailPage = new Email_Page(page);
 
     await loginPage.navigate(); 
     await loginPage.login('admin@versowaves.com', 'DUJHkHFkyrY2');
@@ -118,3 +122,29 @@ test.describe('📋 Quotation V2 Flow', () => {
   });
 }); 
 
+// ------------------------------
+// View Quotation email
+// ------------------------------
+
+test.describe('📋 Quotation Email Verification', () => {
+
+  test('4. Navigation to operational module', async()=>{
+    await emailPage.navigateToOperationalModule();
+    await expect(page).toHaveURL('https://rbf-cargocare.wavestesting.com');
+  } )
+
+  test('5. Select and Verify email history module ', async () => {
+    
+    await emailPage.selectEmailHistoryModule();
+    await expect(page).toHaveURL('https://rbf-cargocare.wavestesting.com/email-history/overview.html');
+
+  });
+  
+  test('6. View Quotation email and Verify Email type', async() => {
+    await emailPage.ViewQuotationEmail();
+  })
+
+  test('7. Verify Company name on Quotation email', async() => {
+    await emailPage.verifyingCompanyNameOnEmail();
+  })
+});
