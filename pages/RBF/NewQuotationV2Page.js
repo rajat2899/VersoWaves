@@ -78,11 +78,27 @@ class New_Quotation_V2 extends BasePage {
     await genRefBtn.waitFor({ state: 'visible', timeout: 10000 });
     await genRefBtn.click();
 
+    // Wait for the hidden input to have a non-empty value
+    await this.page.waitForFunction(() => {
+      const el = document.getElementById('quotereference_hidden');
+      return el && el.value && el.value.trim().length > 0;
+    }, { timeout: 10000 });
+
+    // Fetch the value using evaluate (works even if hidden)
+    const hiddenReferenceCode = await this.page.evaluate(() => {
+      const el = document.getElementById('quotereference_hidden');
+      return el ? el.value : null;
+    });
+    console.log("✅ Hidden Quotation Reference Code:", hiddenReferenceCode);
+
     const refLocator = this.page.locator("//input[@id='quotereference']");
     await refLocator.waitFor({ state: 'visible', timeout: 10000 });
 
     this.generatedCode = await refLocator.inputValue();
     console.log("✅ Generated Quotation Reference Code:", this.generatedCode);
+
+    // Fetch and log the hidden reference code as well
+
 
     console.log("📆 Selecting period...");
     const activeSelect = this.page.locator("(//div[@class='selectbutton'])[6]");
