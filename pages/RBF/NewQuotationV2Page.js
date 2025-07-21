@@ -368,6 +368,91 @@ class New_Quotation_V2 extends BasePage {
     throw error;
 }
 
+}async viewSentQuotation(){
+ 
+  console.log("📝 Viewing sent quotation...");
+ 
+    await this.page.waitForSelector("(//a[@title='View'])[1]", { state: 'visible', timeout: 10000 });
+    await this.page.locator("(//a[@title='View'])[1]").click();
+ 
+   console.log("🔄 You are in view quotation section...");
 }
+ 
+//VIEW COMPANYNAME
+ 
+async verifyCompanyNameInSentQuotation(expectedCompanyName) {
+  console.log("🔍 Verifying company name in sent quotation view...");
+ 
+  // Normalize expected input (e.g., remove trailing digits or trim)
+  const cleanExpected = expectedCompanyName.replace(/\d+$/, '').trim();
+ 
+  // Update locator as per actual page structure (adjust if needed)
+  const companyLocator = this.page.locator('//*[@id="tab-data"]/div[2]/div[1]/div[2]/p');
+ 
+  try {
+    await companyLocator.waitFor({ state: 'visible', timeout: 10000 });
+  } catch (error) {
+    const html = await this.page.content();
+    console.error("❌ Company name element not found. Page HTML snapshot:\n", html);
+    throw new Error(`Company name not found in the sent quotation view.`);
+  }
+ 
+  const actualText = await companyLocator.textContent();
+  const cleanActual = actualText ? actualText.trim() : '';
+ 
+  console.log(`🔎 Comparing Company Name:\n   Expected: "${cleanExpected}"\n   Found:    "${cleanActual}"`);
+ 
+  if (cleanActual.includes(cleanExpected)) {
+    console.log("✅ Company name matched successfully.");
+  } else {
+    throw new Error(`❌ Company name mismatch:\nExpected: "${cleanExpected}"\nFound:    "${cleanActual}"`);
+  }
+}
+ 
+ 
+async verifyGeneratedQuotationCode(expectedCode) {
+  console.log("🔍 Verifying generated quotation reference code in view...");
+ 
+  const refCodeLocator = this.page.locator('xpath=//*[@id="tab-data"]/div[2]/div[2]/div[1]/div[1]/p');
+ 
+  try {
+    await refCodeLocator.waitFor({ state: 'visible', timeout: 10000 });
+  } catch (error) {
+    const html = await this.page.content();
+    console.error("❌ Reference code element not found. Page HTML snapshot:\n", html);
+    throw new Error("Reference code not found in the quotation view.");
+  }
+ 
+  const actualRefCode = await refCodeLocator.textContent();
+  const cleanActualCode = actualRefCode?.trim() || '';
+  const cleanExpectedCode = expectedCode?.trim() || '';
+ 
+  console.log(`🔎 Comparing Reference Code:\n   Expected: "${cleanExpectedCode}"\n   Found:    "${cleanActualCode}"`);
+ 
+  if (cleanActualCode === cleanExpectedCode) {
+    console.log("✅ Quotation reference code matched successfully.");
+  } else {
+    throw new Error(`❌ Reference code mismatch:\nExpected: "${cleanExpectedCode}"\nFound:    "${cleanActualCode}"`);
+  }
+}
+ 
+async verifyQuotationStatus() {
+  console.log("📄 Navigate to Status History tab");
+  await this.page.click('//a[@title="Status History"]');
+ 
+  console.log("📝 Checking quotation status...");
+ 
+  const statusLocator = this.page.locator("//p[text()='Sent']");
+ 
+  const isSent = await statusLocator.isVisible({ timeout: 10000 });
+ 
+  if (isSent) {
+    console.log("✅ Quotation status is 'Sent'.");
+  } else {
+    console.warn("❌ Quotation status is NOT 'Sent'.");
+  }
+}
+ 
+ 
 }
 module.exports = New_Quotation_V2;
