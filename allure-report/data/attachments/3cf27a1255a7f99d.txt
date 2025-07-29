@@ -1,0 +1,44 @@
+❌ Error during beforeAll setup: page.waitForURL: Timeout 20000ms exceeded.
+=========================== logs ===========================
+waiting for navigation to "https://rbf-cargocare.wavestesting.com/" until "load"
+============================================================
+    at LoginPage.login (D:\VersoWaves\VersoWaves\pages\RBF\LoginPage.js:22:21)
+    at D:\VersoWaves\VersoWaves\tests\RBF\QuotationModule.test.js:31:5 {
+  name: 'TimeoutError',
+  [Symbol(step)]: {
+    stepId: 'pw:api@13',
+    location: {
+      file: 'D:\\VersoWaves\\VersoWaves\\pages\\RBF\\LoginPage.js',
+      line: 22,
+      column: 21,
+      function: 'LoginPage.login'
+    },
+    category: 'pw:api',
+    title: 'Wait for navigation',
+    apiName: 'page.waitForURL',
+    params: { info: [Object] },
+    boxedStack: undefined,
+    steps: [],
+    attachmentIndices: [],
+    info: TestStepInfoImpl {
+      annotations: [],
+      _testInfo: [TestInfoImpl],
+      _stepId: 'pw:api@13'
+    },
+    complete: [Function: complete],
+    endWallTime: 1753691544940,
+    error: {
+      message: 'TimeoutError: page.waitForURL: Timeout 20000ms exceeded.\n' +
+        '=========================== logs ===========================\n' +
+        'waiting for navigation to "https://rbf-cargocare.wavestesting.com/" until "load"\n' +
+        '============================================================',
+      stack: 'TimeoutError: page.waitForURL: Timeout 20000ms exceeded.\n' +
+        '=========================== logs ===========================\n' +
+        'waiting for navigation to "https://rbf-cargocare.wavestesting.com/" until "load"\n' +
+        '============================================================\n' +
+        '    at LoginPage.login (D:\\VersoWaves\\VersoWaves\\pages\\RBF\\LoginPage.js:22:21)\n' +
+        '    at D:\\VersoWaves\\VersoWaves\\tests\\RBF\\QuotationModule.test.js:31:5',
+      cause: undefined
+    }
+  }
+}

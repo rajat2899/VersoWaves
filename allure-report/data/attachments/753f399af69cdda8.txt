@@ -1,0 +1,5 @@
+🔍 Verifying company name in sent quotation view...
+🔎 Comparing Company Name:
+   Expected: "OSCAR MAYER (ROWAN FOODS)"
+   Found:    "OSCAR MAYER (ROWAN FOODS)"
+✅ Company name matched successfully.
