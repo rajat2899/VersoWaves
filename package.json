@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
-    "allure:clean": "rd /s /q allure-results && rd /s /q allure-report",
-    "allure:report": "npm run allure:clean && allure generate allure-results --clean && allure open",
+    "allure:copy-history": "if exist allure-report\\history xcopy /E /I /Y allure-report\\history allure-results\\history",
+    "allure:report": "npm run allure:copy-history && allure generate allure-results -o allure-report && allure open",
     "test:report": "npm run test && npm run allure:report"
   },
   "keywords": [],

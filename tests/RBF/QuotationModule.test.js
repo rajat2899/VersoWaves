@@ -2,6 +2,7 @@ import { test, expect, chromium, firefox } from '@playwright/test';
 import LoginPage from '../../pages/RBF/LoginPage';
 import New_Quotation_V2 from '../../pages/RBF/NewQuotationV2Page';
 import Email_Page from '../../pages/RBF/EmailPage';
+import { allure } from 'allure-playwright';
  
 let browser;
 let context;
@@ -73,45 +74,89 @@ test.describe('🔐 Login and User Takeover Flow', () => {
     await loginPage.UserTakeOver_Quotation_Module();
     await page.waitForTimeout(3000);
   });
-});
+}); 
  
 // ------------------------------
 // Quotation V2 Flow
 // ------------------------------
 test.describe('📋 Quotation V2 Flow', () => {
-  test('3. Navigate to Sales and start New Quotation V2', async () => {          
-    await quotationPage.navigateToNewQuotationV2();
-    await expect(page).toHaveURL("https://rbf-cargocare.wavestesting.com/quotations-v2/add.html");
+  test('3. Navigate to Sales and start New Quotation V2', async () => {  
+    allure.label('feature', 'Quotation V2');
+    allure.severity('critical');
+    allure.story('Navigation');
+    allure.step('Navigate to Sales section', async () => {
+      await quotationPage.navigateToNewQuotationV2();
+    });
+    allure.step('Verify URL', async () => {
+      await expect(page).toHaveURL("https://rbf-cargocare.wavestesting.com/quotations-v2/add.html");
+    });
   });
- 
+
   test('4. Quotation V2 Step 1 - Fill Company and Details', async () => {
-    await quotationPage.step1_fillCompanyAndDetails();
+    allure.label('feature', 'Quotation V2');
+    allure.severity('critical');
+    allure.story('Step 1 - Company and Details');
+    await allure.step('Fill company and details', async () => {
+      await quotationPage.step1_fillCompanyAndDetails();
+    });
     selectedCompany = quotationPage.selectedCompanyName ? quotationPage.selectedCompanyName.trim() : undefined;
-    generatedCode = quotationPage.generatedCode; //NOTABLE CHANGES
+    generatedCode = quotationPage.generatedCode;
+    allure.attachment('Selected Company', selectedCompany, 'text/plain');
+    allure.attachment('Generated Quotation Code', generatedCode, 'text/plain');
   });
- 
+
   test('5. Quotation V2 Step 2 - Verify Tariff and Add Lines', async () => {
-    await quotationPage.step2_verifyTariffAndAddLines();
+    allure.label('feature', 'Quotation V2');
+    allure.severity('normal');
+    allure.story('Step 2 - Tariff and Lines');
+    await allure.step('Verify tariff and add lines', async () => {
+      await quotationPage.step2_verifyTariffAndAddLines();
+    });
   });
- 
+
   test('6. Quotation V2 Step 3 - Verify Tariff and Add Lines', async () => {
-    await quotationPage.step3_verifyTariffAndAddLines();  
+    allure.label('feature', 'Quotation V2');
+    allure.severity('normal');
+    allure.story('Step 3 - Tariff and Lines');
+    await allure.step('Verify tariff and add lines', async () => {
+      await quotationPage.step3_verifyTariffAndAddLines();  
+    });
   });
- 
+
   test('7. Quotation V2 Step 4 - Verify Tariff and Add Lines', async () => {
-    await quotationPage.step4_verifyTariffAndAddLines();
+    allure.label('feature', 'Quotation V2');
+    allure.severity('normal');
+    allure.story('Step 4 - Tariff and Lines');
+    await allure.step('Verify tariff and add lines', async () => {
+      await quotationPage.step4_verifyTariffAndAddLines();
+    });
   });
- 
+
   test('8. Verify the Quotation on Sendlist', async () => {
-    await quotationPage.Verifying_Quotation_on_Sendlist();
+    allure.label('feature', 'Quotation V2');
+    allure.severity('minor');
+    allure.story('Sendlist Verification');
+    await allure.step('Verify quotation on sendlist', async () => {
+      await quotationPage.Verifying_Quotation_on_Sendlist();
+    });
   });
- 
+
   test('9. Click and send the Quotation from Sendlist', async () => {
-    await quotationPage.check_and_send_quotation();
+    allure.label('feature', 'Quotation V2');
+    allure.severity('critical');
+    allure.story('Send Quotation');
+    await allure.step('Send quotation from sendlist', async () => {
+      await quotationPage.check_and_send_quotation();
+    });
   });
- 
+
   test('10. Verifying success', async () => {
-    await quotationPage.verifySuccessMessage();
+    allure.label('feature', 'Quotation V2');
+    allure.severity('blocker');
+    allure.story('Success Message');
+    await allure.step('Verify success message', async () => {
+      await quotationPage.verifySuccessMessage();
+    });
   });
 });
  
