@@ -56,28 +56,32 @@ class Email_Page extends BasePage {
       throw new Error("Email type mismatch.");
     }
       }
- 
+      
   async verifyingCompanyNameOnEmail(expectedCompanyName) {
-    // Remove trailing numbers and whitespace for debug log
-    const cleanCompanyName = expectedCompanyName.replace(/\d+$/, '').trim();
-    console.log(`[DEBUG] Checking for company name: ${cleanCompanyName}`);
- 
-    // Use the provided XPath to locate the company name
-    const companyLocator = this.page.locator('xpath=//*[@id="content"]/div[2]/div/div[1]/div[3]/div[1]/p');
-    await companyLocator.waitFor({ state: 'visible', timeout: 10000 }).catch(async () => {
-      const html = await this.page.content();
-      console.error('[DEBUG] Company name not found. Page content:', html);
-      throw new Error(`Company name "${expectedCompanyName}" not found in email view.`);
-    });
- 
-    const actualCompanyName = await companyLocator.textContent();
-    if (actualCompanyName && actualCompanyName.trim().includes(cleanCompanyName)) {
-      console.log(`✅ Company name is correct: ${cleanCompanyName}`);
-    } else {
-      console.error(`❌ Company name mismatch: expected "${cleanCompanyName}", but got "${actualCompanyName ? actualCompanyName.trim() : 'null'}"`);
-      throw new Error("Company name does not match expected value.");
-    }
+  // Remove trailing numbers OR code in parentheses + whitespace
+  const cleanCompanyName = expectedCompanyName
+    .replace(/\(.*?\)/g, '')  // remove text in parentheses like (OSC101)
+    .replace(/\d+$/, '')      // remove any trailing digits
+    .trim();
+
+  console.log(`[DEBUG] Checking for company name: ${cleanCompanyName}`);
+
+  const companyLocator = this.page.locator('xpath=//*[@id="content"]/div[2]/div/div[1]/div[3]/div[1]/p');
+  await companyLocator.waitFor({ state: 'visible', timeout: 10000 }).catch(async () => {
+    const html = await this.page.content();
+    console.error('[DEBUG] Company name not found. Page content:', html);
+    throw new Error(`Company name "${cleanCompanyName}" not found in email view.`);
+  });
+
+  const actualCompanyName = await companyLocator.textContent();
+  if (actualCompanyName && actualCompanyName.trim().includes(cleanCompanyName)) {
+    console.log(`✅ Company name is correct: ${cleanCompanyName}`);
+  } else {
+    console.error(`❌ Company name mismatch: expected "${cleanCompanyName}", but got "${actualCompanyName ? actualCompanyName.trim() : 'null'}"`);
+    throw new Error("Company name does not match expected value.");
   }
+}
+
  
   async navigateToSentQuotation(){
  

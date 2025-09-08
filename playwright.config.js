@@ -15,7 +15,6 @@ module.exports = {
       use: {
         baseURL: getBaseURL(),
         browserName: 'chromium',
-        headless: true,
         trace: 'on',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',

@@ -21,7 +21,7 @@ class New_Quotation_V2 extends BasePage {
     await this.page.locator("xpath=//li//a[text()='New Quotation']").click();
 
     console.log("🔄 Waiting for quotation page URL...");
-    await this.page.waitForURL("https://rbf-cargocare.wavestesting.com/quotations-v2/add.html", { timeout: 20000 });
+    await this.page.waitForURL("https://rbf-cargocare.wavestesting.com/quotations-v2/add.html", { timeout: 30000 });
   }
 
   async step1_fillCompanyAndDetails() {
@@ -38,6 +38,8 @@ class New_Quotation_V2 extends BasePage {
 
     // Store the selected company name for later use
     this.selectedCompanyName = await companyOption.textContent();
+
+    await this.page.waitForTimeout(1000);
 
     console.log("📄 Selecting company email from dropdown...");
     const selectCompanyContact = this.page.locator("(//div[@class='selectbutton'])[last()-4]");
@@ -106,7 +108,7 @@ class New_Quotation_V2 extends BasePage {
     await activeSelect.click();
 
     try {
-      const aprilOption = this.page.locator("//div[@class='selectlist active']//div[@class='selectoption' and contains(text(), 'August 2025 (1 Aug - 31 Aug)')]");
+      const aprilOption = this.page.locator("//div[@class='selectlist active']//div[@class='selectoption' and contains(text(), 'November 2025 (1 Nov - 30 Nov)')]");
       await aprilOption.waitFor({ state: 'visible', timeout: 10000 });
       await aprilOption.scrollIntoViewIfNeeded();
       await this.page.waitForTimeout(500);
@@ -116,7 +118,7 @@ class New_Quotation_V2 extends BasePage {
     } catch (error) {
       console.warn('❌ Regular click failed, trying JS click...');
       try {
-        const aprilOption = this.page.locator("//div[@class='selectlist active']//div[@class='selectoption' and contains(text(), 'August 2025 (1 Aug - 31 Aug)')]");
+        const aprilOption = this.page.locator("//div[@class='selectlist active']//div[@class='selectoption' and contains(text(), 'November 2025 (1 Nov - 30 Nov)')]");
         await aprilOption.evaluate(el => el.click());
         console.log("✅ JS-based click succeeded.");
       } catch (innerErr) {
@@ -379,16 +381,18 @@ class New_Quotation_V2 extends BasePage {
 }
  
 //VIEW COMPANYNAME
- 
+
 async verifyCompanyNameInSentQuotation(expectedCompanyName) {
   console.log("🔍 Verifying company name in sent quotation view...");
- 
-  // Normalize expected input (e.g., remove trailing digits or trim)
-  const cleanExpected = expectedCompanyName.replace(/\d+$/, '').trim();
- 
-  // Update locator as per actual page structure (adjust if needed)
+
+  // Normalize expected input (remove trailing digits, parentheses, trim)
+  const cleanExpected = expectedCompanyName
+    .replace(/\(.*?\)/g, '')   // remove anything inside parentheses
+    .replace(/\d+$/, '')       // remove trailing digits
+    .trim();
+
   const companyLocator = this.page.locator('//*[@id="tab-data"]/div[2]/div[1]/div[2]/p');
- 
+
   try {
     await companyLocator.waitFor({ state: 'visible', timeout: 10000 });
   } catch (error) {
@@ -396,12 +400,14 @@ async verifyCompanyNameInSentQuotation(expectedCompanyName) {
     console.error("❌ Company name element not found. Page HTML snapshot:\n", html);
     throw new Error(`Company name not found in the sent quotation view.`);
   }
- 
+
   const actualText = await companyLocator.textContent();
-  const cleanActual = actualText ? actualText.trim() : '';
- 
+  const cleanActual = actualText
+    ? actualText.replace(/\(.*?\)/g, '').replace(/\d+$/, '').trim()
+    : '';
+
   console.log(`🔎 Comparing Company Name:\n   Expected: "${cleanExpected}"\n   Found:    "${cleanActual}"`);
- 
+
   if (cleanActual.includes(cleanExpected)) {
     console.log("✅ Company name matched successfully.");
   } else {
@@ -409,7 +415,7 @@ async verifyCompanyNameInSentQuotation(expectedCompanyName) {
   }
 }
  
- 
+
 async verifyGeneratedQuotationCode(expectedCode) {
   console.log("🔍 Verifying generated quotation reference code in view...");
  

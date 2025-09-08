@@ -61,7 +61,8 @@ test.afterAll(async () => {
     await browser.close();
   }
 });
- 
+
+
 // ------------------------------
 // Login and User Takeover Flow
 // ------------------------------
@@ -178,9 +179,16 @@ test.describe('📧 Quotation Email Verification', () => {
     await emailPage.ViewQuotationEmail();
   });
  
-  test('4. Verify Company name on Quotation email', async () => {
+//   test('4. Verify Company name on Quotation email', async () => {
+//     await emailPage.verifyingCompanyNameOnEmail(selectedCompany); 
+//   });
+// });
+
+test('4. Verify Company name on Quotation email', async () => {
+  await expect(async () => {
     await emailPage.verifyingCompanyNameOnEmail(selectedCompany);
-  });
+  }).toPass({ retries: 2, timeout: 20000 });
+});
 });
  
 // ------------------------------

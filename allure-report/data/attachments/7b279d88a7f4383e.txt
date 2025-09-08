@@ -1,2 +1,0 @@
-[DEBUG] Checking for company name: OSCAR MAYER (ROWAN FOODS)
-✅ Company name is correct: OSCAR MAYER (ROWAN FOODS)
