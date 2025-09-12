@@ -99,7 +99,6 @@ class Email_Page extends BasePage {
     await this.page.locator("xpath=//h2[@class='slide quotations ']//a[text()='Quotations']").click();
  
     console.log("➡️ Clicking Sent Quotation...");
-    await this.page.waitForSelector("xpath=//li//a[text()='Sent Quotations']", { state: 'visible', timeout: 10000 });
     await this.page.locator("xpath=//li//a[text()='Sent Quotations']").click();
  
     console.log("🔄 Waiting for quotation page URL...");

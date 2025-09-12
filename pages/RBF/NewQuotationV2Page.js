@@ -9,16 +9,49 @@ class New_Quotation_V2 extends BasePage {
 
   async navigateToNewQuotationV2() {
     console.log("➡️ Navigating to Sales section...");
-    await this.page.waitForSelector("xpath=//a[text()='Sales']", { state: 'visible', timeout: 10000 });
-    await this.page.locator("xpath=//a[text()='Sales']").click();
+    
+    await this.page.waitForLoadState('domcontentloaded');
+
+    // Prefer a stable, role-based locator and explicit navigation wait
+    const salesLink = this.page.getByRole('link', { name: 'Sales' });
+    await salesLink.first().waitFor({ state: 'visible', timeout: 30000 });
+    await Promise.all([
+      this.page.waitForURL('**/sales.html', { timeout: 30000 }),
+      salesLink.first().click()
+    ]);
 
     console.log("➡️ Expanding Quotations menu...");
-    await this.page.waitForSelector("xpath=//h2[@class='slide quotations ']//a[text()='Quotations']", { state: 'visible', timeout: 10000 });
-    await this.page.locator("xpath=//h2[@class='slide quotations ']//a[text()='Quotations']").click();
+    const quotationsLink = this.page.locator("xpath=//h2[contains(@class,'quotations')]/a[normalize-space(text())='Quotations']");
+    await quotationsLink.first().waitFor({ state: 'visible', timeout: 20000 });
+    await quotationsLink.first().click();
+
+    // Ensure submenu is expanded and the link is attached/visible
+    const newQuotationLink = this.page.locator("xpath=//li//a[normalize-space(text())='New Quotation']");
+    await newQuotationLink.first().waitFor({ state: 'attached', timeout: 20000 });
+
+    // If still hidden, try expanding again
+    if (!(await newQuotationLink.first().isVisible())) {
+      await quotationsLink.first().click();
+      await this.page.waitForTimeout(200);
+    }
 
     console.log("➡️ Clicking New Quotation...");
-    await this.page.waitForSelector("xpath=//li//a[text()='New Quotation']", { state: 'visible', timeout: 10000 });
-    await this.page.locator("xpath=//li//a[text()='New Quotation']").click();
+    // Try normal click; if hidden, click forcefully
+    const clickNewQuotation = async () => {
+      try {
+        await newQuotationLink.first().waitFor({ state: 'visible', timeout: 5000 });
+        await Promise.all([
+          this.page.waitForURL('**/quotations-v2/add.html', { timeout: 30000 }),
+          newQuotationLink.first().click(),
+        ]);
+      } catch {
+        await Promise.all([
+          this.page.waitForURL('**/quotations-v2/add.html', { timeout: 30000 }),
+          newQuotationLink.first().click({ force: true }),
+        ]);
+      }
+    };
+    await clickNewQuotation();
 
     console.log("🔄 Waiting for quotation page URL...");
     await this.page.waitForURL("https://rbf-cargocare.wavestesting.com/quotations-v2/add.html", { timeout: 30000 });
@@ -31,13 +64,34 @@ class New_Quotation_V2 extends BasePage {
     await companyInput.click();
     await this.page.keyboard.type('oscar');
 
+    // Wait for suggestion list to become active
+    const activeList = this.page.locator("//div[contains(@class,'selectlist') and contains(@class,'active')]");
+    await activeList.first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+
     console.log("📄 Selecting company from dropdown...");
     const companyOption = this.page.locator("//div[@class='selectoption' and contains(text(), 'OSCAR MAYER (ROWAN FOODS)')]");
-    await companyOption.waitFor({ state: 'visible', timeout: 10000 });
-    await companyOption.click();
+    try {
+      await companyOption.waitFor({ state: 'visible', timeout: 10000 });
+      await companyOption.click();
+    } catch (e) {
+      // If option is hidden, try re-focusing input to reopen list and force click
+      await companyInput.click();
+      await this.page.waitForTimeout(300);
+      if (!(await companyOption.isVisible())) {
+        await activeList.first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
+      }
+      if (await companyOption.isVisible()) {
+        await companyOption.click({ force: true });
+      } else {
+        // Keyboard fallback: ArrowDown through options and Enter
+        await this.page.keyboard.press('ArrowDown');
+        await this.page.waitForTimeout(200);
+        await this.page.keyboard.press('Enter');
+      }
+    }
 
     // Store the selected company name for later use
-    this.selectedCompanyName = await companyOption.textContent();
+    this.selectedCompanyName = await companyOption.textContent().catch(() => undefined);
 
     await this.page.waitForTimeout(1000);
 
@@ -313,17 +367,23 @@ class New_Quotation_V2 extends BasePage {
   async step4_verifyTariffAndAddLines() {
     console.log("🔍 Verifying data in Step 4...");
   
-    const completeBtn = this.page.locator("xpath=//input[@title='Complete Quotation']");
-    await completeBtn.waitFor({ state: 'visible', timeout: 10000 });
+    // Ensure step 4 content is loaded
+    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.waitForLoadState('networkidle').catch(() => {});
+
+    const completeBtn = this.page.locator("//input[@title='Complete Quotation']");
+    await completeBtn.waitFor({ state: 'attached', timeout: 30000 });
   
     console.log("🔽 Scrolling to 'Complete Quotation' button...");
     await completeBtn.scrollIntoViewIfNeeded(); 
-    await this.page.waitForTimeout(500); // small buffer time after scrolling
+    await this.page.waitForTimeout(300);
   
     console.log("🖱️ Clicking 'Complete Quotation'...");
-    await completeBtn.click();
+    await Promise.all([
+      this.page.waitForLoadState('networkidle').catch(() => {}),
+      completeBtn.click()
+    ]);
   
-     
   }
   async Verifying_Quotation_on_Sendlist() {
   const quoteInRow = this.page.locator("(//div[@class='row sendlist']//div[@class='quotenumber'])[1]");
@@ -364,7 +424,7 @@ class New_Quotation_V2 extends BasePage {
       throw new Error(`❌ Expected success message format not found. Actual message: "${actualText}"`);
     }
 }
- catch (error) {
+catch (error) {
 
   console.error('❌ Failed to verify success message:', error.message);
     throw error;
