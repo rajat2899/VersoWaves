@@ -9,10 +9,8 @@ class New_Quotation_V2 extends BasePage {
 
   async navigateToNewQuotationV2() {
     console.log("➡️ Navigating to Sales section...");
-    
     await this.page.waitForLoadState('domcontentloaded');
 
-    // Prefer a stable, role-based locator and explicit navigation wait
     const salesLink = this.page.getByRole('link', { name: 'Sales' });
     await salesLink.first().waitFor({ state: 'visible', timeout: 30000 });
     await Promise.all([
@@ -20,41 +18,20 @@ class New_Quotation_V2 extends BasePage {
       salesLink.first().click()
     ]);
 
-    console.log("➡️ Expanding Quotations menu...");
     const quotationsLink = this.page.locator("xpath=//h2[contains(@class,'quotations')]/a[normalize-space(text())='Quotations']");
     await quotationsLink.first().waitFor({ state: 'visible', timeout: 20000 });
     await quotationsLink.first().click();
 
-    // Ensure submenu is expanded and the link is attached/visible
     const newQuotationLink = this.page.locator("xpath=//li//a[normalize-space(text())='New Quotation']");
-    await newQuotationLink.first().waitFor({ state: 'attached', timeout: 20000 });
-
-    // If still hidden, try expanding again
-    if (!(await newQuotationLink.first().isVisible())) {
-      await quotationsLink.first().click();
-      await this.page.waitForTimeout(200);
-    }
-
+    await newQuotationLink.first().waitFor({ state: 'visible', timeout: 20000 });
     console.log("➡️ Clicking New Quotation...");
-    // Try normal click; if hidden, click forcefully
-    const clickNewQuotation = async () => {
-      try {
-        await newQuotationLink.first().waitFor({ state: 'visible', timeout: 5000 });
-        await Promise.all([
-          this.page.waitForURL('**/quotations-v2/add.html', { timeout: 30000 }),
-          newQuotationLink.first().click(),
-        ]);
-      } catch {
-        await Promise.all([
-          this.page.waitForURL('**/quotations-v2/add.html', { timeout: 30000 }),
-          newQuotationLink.first().click({ force: true }),
-        ]);
-      }
-    };
-    await clickNewQuotation();
+    await Promise.all([
+      this.page.waitForURL('**/quotations-v2/add.html', { timeout: 30000 }),
+      newQuotationLink.first().click()
+    ]);
 
-    console.log("🔄 Waiting for quotation page URL...");
-    await this.page.waitForURL("https://rbf-cargocare.wavestesting.com/quotations-v2/add.html", { timeout: 30000 });
+    // Ensure the add page is ready
+    await this.page.locator("//input[@id='company']").waitFor({ state: 'visible', timeout: 30000 });
   }
 
   async step1_fillCompanyAndDetails() {
@@ -71,7 +48,7 @@ class New_Quotation_V2 extends BasePage {
     console.log("📄 Selecting company from dropdown...");
     const companyOption = this.page.locator("//div[@class='selectoption' and contains(text(), 'OSCAR MAYER (ROWAN FOODS)')]");
     try {
-      await companyOption.waitFor({ state: 'visible', timeout: 10000 });
+      await companyOption.waitFor({ state: 'visible', timeout: 5000 });
       await companyOption.click();
     } catch (e) {
       // If option is hidden, try re-focusing input to reopen list and force click

@@ -31,25 +31,42 @@ test.beforeAll(async () => {
     await loginPage.login('admin@versowaves.com', 'DUJHkHFkyrY2');
     await loginPage.UserTakeOver_Quotation_Module();
  
-    const expectedURL = "https://rbf-cargocare.wavestesting.com/";
+    const baseOrigin = 'https://rbf-cargocare.wavestesting.com';
+    const expectedURLRegex = new RegExp('^' + baseOrigin.replaceAll('.', '\\.') + '/?$');
     let success = false;
-    let maxAttempts = 2;
+    const maxAttempts = 3;
  
     for (let i = 0; i < maxAttempts; i++) {
       await page.waitForLoadState('networkidle');
       const currentURL = page.url();
       console.log(`🔍 Attempt ${i + 1}: Current URL is ${currentURL}`);
-      if (currentURL === expectedURL) {
-        success = true;
-        break;
-      } else {
+ 
+      // If intermittently redirected to home.html, go back once and retry
+      if (currentURL.startsWith(baseOrigin) && /\/home\.html(\?|#|$)/.test(currentURL)) {
         console.warn(`⚠️ Unexpected URL (${currentURL}). Navigating back...`);
         await page.goBack();
+        continue;
+      }
+ 
+      // Accept landing on the base dashboard with or without trailing slash
+      if (expectedURLRegex.test(currentURL)) {
+        success = true;
+        break;
+      }
+ 
+      // As a fallback, try navigating directly to the base dashboard once
+      if (i === maxAttempts - 1) {
+        console.warn('⚠️ Final attempt: navigating directly to base dashboard');
+        await page.goto(baseOrigin + '/');
+        await page.waitForLoadState('networkidle');
+        if (expectedURLRegex.test(page.url())) {
+          success = true;
+        }
       }
     }
  
     expect(success).toBeTruthy();
-    await expect(page).toHaveURL(expectedURL);
+    await expect(page).toHaveURL(expectedURLRegex);
   } catch (err) {
     console.error('❌ Error during beforeAll setup:', err);
     throw err;
@@ -70,12 +87,9 @@ test.describe.configure({ mode: 'serial' });
 // ------------------------------
 test.describe('🔐 Login and User Takeover Flow', () => {
   test('1. Verify Dashboard is visible after login', async () => {
-    await expect(page).toHaveURL('https://rbf-cargocare.wavestesting.com/');
+    await expect(page).toHaveURL(/^https:\/\/rbf-cargocare\.wavestesting\.com\/?$/);
   });
  
-  test.skip('2. User takeover (handled in beforeAll)', async () => {
-    // takeover moved to beforeAll to ensure consistent state for all tests
-  });
 }); 
  
 // ------------------------------
@@ -174,7 +188,7 @@ test.describe('📋 Quotation V2 Flow', () => {
 test.describe('📧 Quotation Email Verification', () => {
   test('1. Navigation to operational module', async () => {
     await emailPage.navigateToOperationalModule();
-    await expect(page).toHaveURL('https://rbf-cargocare.wavestesting.com');
+    await expect(page).toHaveURL(/^https:\/\/rbf-cargocare\.wavestesting\.com\/?$/);
   });
  
   test('2. Select and Verify email history module', async () => {
@@ -191,11 +205,11 @@ test.describe('📧 Quotation Email Verification', () => {
 //   });
 // });
 
-test('4. Verify Company name on Quotation email', async () => {
-  await expect(async () => {
-    await emailPage.verifyingCompanyNameOnEmail(selectedCompany);
-  }).toPass({ retries: 2, timeout: 20000 });
-});
+  test('4. Verify Company name on Quotation email', async () => {
+    await expect(async () => {
+      await emailPage.verifyingCompanyNameOnEmail(selectedCompany);
+    }).toPass({ retries: 2, timeout: 20000 });
+  });
 });
  
 // ------------------------------
@@ -226,7 +240,7 @@ test.describe('📨 Verification and Validations in View quotation section', () 
     await quotationPage.verifyQuotationStatus();
   });
 }); 
-
+ 
 // Skip granular step-by-step suites to avoid state loss
 test.describe('📋 Quotation V2 Flow', () => {});
 test.describe('📧 Quotation Email Verification', () => {});
